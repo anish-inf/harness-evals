@@ -1,0 +1,1474 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc 3.10.2" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>AI Agent Harness Benchmarks</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: 1.5em;}
+    div.column{flex: auto;}
+    @media screen {
+    div.columns{gap: min(4vw, 1.5em);}
+    div.column{overflow-x: auto;}
+    }
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <link rel="stylesheet" href="harness-evals.css" />
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">AI Agent Harness Benchmarks</h1>
+</header>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#ai-agent-harness-benchmarks"
+id="toc-ai-agent-harness-benchmarks">AI Agent Harness Benchmarks</a>
+<ul>
+<li><a href="#executive-summary" id="toc-executive-summary">Executive
+summary</a></li>
+</ul></li>
+<li><a href="#comparison-at-a-glance"
+id="toc-comparison-at-a-glance">Comparison at a glance</a></li>
+<li><a href="#frontierharness-eval-v1.0"
+id="toc-frontierharness-eval-v1.0">1. FrontierHarness Eval v1.0</a>
+<ul>
+<li><a href="#what-it-is" id="toc-what-it-is">What it is</a></li>
+<li><a href="#task-set" id="toc-task-set">Task set</a></li>
+<li><a href="#harnesses-tested" id="toc-harnesses-tested">Harnesses
+tested</a></li>
+<li><a href="#what-was-controlled" id="toc-what-was-controlled">What was
+controlled</a></li>
+<li><a href="#metrics" id="toc-metrics">Metrics</a></li>
+<li><a href="#original-results" id="toc-original-results">Original
+results</a></li>
+<li><a href="#independent-use-mouse"
+id="toc-independent-use-mouse">Independent use: Mouse</a></li>
+<li><a href="#strengths" id="toc-strengths">Strengths</a></li>
+<li><a href="#limitations" id="toc-limitations">Limitations</a></li>
+<li><a href="#sources-and-artifacts"
+id="toc-sources-and-artifacts">Sources and artifacts</a></li>
+</ul></li>
+<li><a href="#composios-kimi-k3-multi-harness-evaluation"
+id="toc-composios-kimi-k3-multi-harness-evaluation">2. Composio’s Kimi
+K3 multi-harness evaluation</a>
+<ul>
+<li><a href="#what-it-is-1" id="toc-what-it-is-1">What it is</a></li>
+<li><a href="#task-set-1" id="toc-task-set-1">Task set</a></li>
+<li><a href="#harnesses-tested-1" id="toc-harnesses-tested-1">Harnesses
+tested</a></li>
+<li><a href="#what-was-controlled-1" id="toc-what-was-controlled-1">What
+was controlled</a></li>
+<li><a href="#grading-design" id="toc-grading-design">Grading
+design</a></li>
+<li><a href="#results" id="toc-results">Results</a></li>
+<li><a href="#what-the-task-distribution-showed"
+id="toc-what-the-task-distribution-showed">What the task distribution
+showed</a></li>
+<li><a href="#strengths-1" id="toc-strengths-1">Strengths</a></li>
+<li><a href="#limitations-1" id="toc-limitations-1">Limitations</a></li>
+<li><a href="#sources" id="toc-sources">Sources</a></li>
+</ul></li>
+<li><a href="#databricks-internal-coding-agent-benchmark"
+id="toc-databricks-internal-coding-agent-benchmark">3. Databricks’
+internal coding-agent benchmark</a>
+<ul>
+<li><a href="#what-it-is-2" id="toc-what-it-is-2">What it is</a></li>
+<li><a href="#task-construction" id="toc-task-construction">Task
+construction</a></li>
+<li><a href="#what-was-evaluated" id="toc-what-was-evaluated">What was
+evaluated</a></li>
+<li><a href="#grading-and-metrics" id="toc-grading-and-metrics">Grading
+and metrics</a></li>
+<li><a href="#reported-harness-findings"
+id="toc-reported-harness-findings">Reported harness findings</a></li>
+<li><a href="#related-pi-autoresearch-evidence"
+id="toc-related-pi-autoresearch-evidence">Related Pi autoresearch
+evidence</a></li>
+<li><a href="#strengths-2" id="toc-strengths-2">Strengths</a></li>
+<li><a href="#limitations-2" id="toc-limitations-2">Limitations</a></li>
+<li><a href="#sources-1" id="toc-sources-1">Sources</a></li>
+</ul></li>
+<li><a href="#floatboats-multi-benchmark-harness-study"
+id="toc-floatboats-multi-benchmark-harness-study">4. Floatboat’s
+multi-benchmark harness study</a>
+<ul>
+<li><a href="#what-it-is-3" id="toc-what-it-is-3">What it is</a></li>
+<li><a href="#evaluation-suites-used"
+id="toc-evaluation-suites-used">Evaluation suites used</a></li>
+<li><a href="#harness-leverage-ratio"
+id="toc-harness-leverage-ratio">Harness Leverage Ratio</a></li>
+<li><a href="#why-it-is-useful" id="toc-why-it-is-useful">Why it is
+useful</a></li>
+<li><a href="#limitations-3" id="toc-limitations-3">Limitations</a></li>
+<li><a href="#source" id="toc-source">Source</a></li>
+</ul></li>
+<li><a href="#openbench" id="toc-openbench">5. OpenBench</a>
+<ul>
+<li><a href="#what-it-is-4" id="toc-what-it-is-4">What it is</a></li>
+<li><a href="#task-sets-and-tracks" id="toc-task-sets-and-tracks">Task
+sets and tracks</a></li>
+<li><a href="#evaluation-design" id="toc-evaluation-design">Evaluation
+design</a></li>
+<li><a href="#findings" id="toc-findings">Findings</a></li>
+<li><a href="#strengths-and-limitations"
+id="toc-strengths-and-limitations">Strengths and limitations</a></li>
+</ul></li>
+<li><a href="#harness-efficiency-bench"
+id="toc-harness-efficiency-bench">6. Harness Efficiency Bench</a>
+<ul>
+<li><a href="#what-it-tested" id="toc-what-it-tested">What it
+tested</a></li>
+<li><a href="#main-results" id="toc-main-results">Main results</a></li>
+<li><a href="#why-it-matters" id="toc-why-it-matters">Why it
+matters</a></li>
+<li><a href="#limitations-4" id="toc-limitations-4">Limitations</a></li>
+</ul></li>
+<li><a href="#artificial-analysis-coding-agent-index"
+id="toc-artificial-analysis-coding-agent-index">7. Artificial Analysis
+Coding Agent Index</a>
+<ul>
+<li><a href="#what-it-is-5" id="toc-what-it-is-5">What it is</a></li>
+<li><a href="#task-set-and-scoring" id="toc-task-set-and-scoring">Task
+set and scoring</a></li>
+<li><a href="#why-it-stands-out" id="toc-why-it-stands-out">Why it
+stands out</a></li>
+<li><a href="#limitations-5" id="toc-limitations-5">Limitations</a></li>
+</ul></li>
+<li><a href="#composios-deepseek-v4-flash-evaluation"
+id="toc-composios-deepseek-v4-flash-evaluation">8. Composio’s DeepSeek
+V4 Flash evaluation</a>
+<ul>
+<li><a href="#design" id="toc-design">Design</a></li>
+<li><a href="#results-1" id="toc-results-1">Results</a></li>
+<li><a href="#important-caveats" id="toc-important-caveats">Important
+caveats</a></li>
+</ul></li>
+<li><a href="#smaller-and-emerging-harness-evaluations"
+id="toc-smaller-and-emerging-harness-evaluations">9. Smaller and
+emerging harness evaluations</a>
+<ul>
+<li><a href="#pdd-pi-versus-official-deepseek-harness"
+id="toc-pdd-pi-versus-official-deepseek-harness">9.1 PDD: Pi versus
+official DeepSeek Harness</a></li>
+<li><a href="#ten-task-glm-5.3-harness-comparison"
+id="toc-ten-task-glm-5.3-harness-comparison">9.2 Ten-task GLM 5.3
+harness comparison</a></li>
+<li><a href="#local-pi-versus-opencode-benchmark"
+id="toc-local-pi-versus-opencode-benchmark">9.3 Local Pi versus OpenCode
+benchmark</a></li>
+<li><a href="#strands-benchmark-harnesses"
+id="toc-strands-benchmark-harnesses">9.4 Strands
+benchmark-harnesses</a></li>
+<li><a href="#mouse-on-frontierharness"
+id="toc-mouse-on-frontierharness">9.5 Mouse on FrontierHarness</a></li>
+</ul></li>
+<li><a href="#benchmarks-used-inside-harness-evaluations"
+id="toc-benchmarks-used-inside-harness-evaluations">10. Benchmarks used
+inside harness evaluations</a>
+<ul>
+<li><a href="#terminal-bench"
+id="toc-terminal-bench">Terminal-Bench</a></li>
+<li><a href="#deepswe" id="toc-deepswe">DeepSWE</a></li>
+<li><a href="#swe-bench-verified" id="toc-swe-bench-verified">SWE-bench
+Verified</a></li>
+<li><a href="#automationbench-toolathlon-and-browsecomp"
+id="toc-automationbench-toolathlon-and-browsecomp">AutomationBench,
+Toolathlon, and BrowseComp</a></li>
+</ul></li>
+<li><a href="#what-the-current-benchmarks-collectively-show"
+id="toc-what-the-current-benchmarks-collectively-show">11. What the
+current benchmarks collectively show</a>
+<ul>
+<li><a href="#harness-choice-changes-success"
+id="toc-harness-choice-changes-success">Harness choice changes
+success</a></li>
+<li><a href="#harness-choice-changes-cost-even-more"
+id="toc-harness-choice-changes-cost-even-more">Harness choice changes
+cost even more</a></li>
+<li><a href="#efficiency-and-quality-are-separate-axes"
+id="toc-efficiency-and-quality-are-separate-axes">Efficiency and quality
+are separate axes</a></li>
+<li><a
+href="#the-harness-effect-is-concentrated-in-middle-difficulty-tasks"
+id="toc-the-harness-effect-is-concentrated-in-middle-difficulty-tasks">The
+harness effect is concentrated in middle-difficulty tasks</a></li>
+<li><a href="#native-harness-advantage-remains-unresolved"
+id="toc-native-harness-advantage-remains-unresolved">Native-harness
+advantage remains unresolved</a></li>
+</ul></li>
+<li><a href="#evidence-quality-ranking"
+id="toc-evidence-quality-ranking">12. Evidence-quality ranking</a>
+<ul>
+<li><a href="#tier-a-reusable-public-benchmark"
+id="toc-tier-a-reusable-public-benchmark">Tier A — reusable public
+benchmark</a></li>
+<li><a
+href="#tier-b-large-controlled-evaluation-with-limited-rerun-access"
+id="toc-tier-b-large-controlled-evaluation-with-limited-rerun-access">Tier
+B — large controlled evaluation with limited rerun access</a></li>
+<li><a
+href="#tier-c-strong-controlled-company-evaluation-not-reproducible"
+id="toc-tier-c-strong-controlled-company-evaluation-not-reproducible">Tier
+C — strong controlled company evaluation, not reproducible</a></li>
+<li><a href="#tier-d-useful-vendor-or-community-studies"
+id="toc-tier-d-useful-vendor-or-community-studies">Tier D — useful
+vendor or community studies</a></li>
+</ul></li>
+<li><a href="#what-a-better-next-generation-harness-benchmark-should-do"
+id="toc-what-a-better-next-generation-harness-benchmark-should-do">13.
+What a better next-generation harness benchmark should do</a>
+<ul>
+<li><a href="#task-coverage" id="toc-task-coverage">Task
+coverage</a></li>
+<li><a href="#experimental-design"
+id="toc-experimental-design">Experimental design</a></li>
+<li><a href="#metrics-1" id="toc-metrics-1">Metrics</a></li>
+<li><a href="#reproducibility"
+id="toc-reproducibility">Reproducibility</a></li>
+</ul></li>
+<li><a href="#bottom-line" id="toc-bottom-line">Bottom line</a></li>
+</ul>
+</nav>
+<h1 id="ai-agent-harness-benchmarks">AI Agent Harness Benchmarks</h1>
+<p><strong>A survey of actual evaluation suites used to compare agent
+harnesses</strong><br />
+<strong>Updated:</strong> September 6, 2026</p>
+<blockquote>
+<p>This document focuses on concrete evaluations where researchers or
+companies ran one model through multiple harnesses, or published a suite
+intended for doing so. It does not attempt to catalog every agent
+benchmark or every paper proposing a new scaffold.</p>
+</blockquote>
+<h2 id="executive-summary">Executive summary</h2>
+<p>Seven evaluations currently provide the clearest evidence about
+harness performance:</p>
+<ol type="1">
+<li><strong>FrontierHarness Eval v1.0</strong> — the most reproducible
+public harness benchmark: 30 software-engineering tasks, 12 harness
+configurations, Kimi K3 held fixed, and public tasks/results.</li>
+<li><strong>Composio’s Kimi K3 harness evaluation</strong> — 25
+business-application tool-use tasks across eight harnesses, with the
+model, provider, reasoning level, tools, instructions, data, and
+automated grading held fixed.</li>
+<li><strong>Databricks’ internal coding-agent benchmark</strong> —
+realistic tasks derived from merged pull requests in Databricks’
+multi-million-line codebase; especially useful for its same-model,
+same-thinking-effort comparisons, but the benchmark is private.</li>
+<li><strong>OpenBench</strong> — a public, reusable coding-harness
+benchmark with fixed-model tracks, repeated trials, checker-based
+grading, Wilson intervals, and committed datasets.</li>
+<li><strong>Artificial Analysis Coding Agent Index</strong> — a 326-task
+composite with three attempts per task and a dedicated same-model
+harness comparison view.</li>
+<li><strong>Harness Efficiency Bench</strong> — a 12-harness, two-model
+study focused on startup prompt overhead, cache behavior, context
+handling, and tokens per solved task.</li>
+<li><strong>Floatboat’s cross-benchmark harness study</strong> —
+compares harness effects across several existing agent benchmarks and
+introduces a Harness Leverage Ratio, but is vendor-run and less
+independently reproducible.</li>
+</ol>
+<p>The common result is that the harness can materially change
+<strong>pass rate, cost, latency, context use, and reliability even when
+the model is fixed</strong>. The evidence is directionally strong, but
+most studies still use only one run per task and lack confidence
+intervals.</p>
+<hr />
+<h1 id="comparison-at-a-glance">Comparison at a glance</h1>
+<table>
+<colgroup>
+<col style="width: 13%" />
+<col style="width: 17%" />
+<col style="width: 13%" />
+<col style="width: 13%" />
+<col style="width: 17%" />
+<col style="width: 13%" />
+<col style="width: 13%" />
+</colgroup>
+<thead>
+<tr>
+<th>Evaluation</th>
+<th style="text-align: right;">Tasks</th>
+<th>Domain</th>
+<th>Fixed model</th>
+<th style="text-align: right;">Harnesses/configurations</th>
+<th>Grading</th>
+<th>Public artifacts</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>FrontierHarness v1.0</strong></td>
+<td style="text-align: right;">30</td>
+<td>Terminal + repository software engineering</td>
+<td>Kimi K3</td>
+<td style="text-align: right;">12 configs / 9 original harnesses</td>
+<td>Deterministic verifiers and hidden tests</td>
+<td>Tasks, metadata, versions, aggregate and task-level results, rerun
+workflow</td>
+</tr>
+<tr>
+<td><strong>Composio harness evaluation</strong></td>
+<td style="text-align: right;">25 valid tasks</td>
+<td>Business-app and MCP tool use</td>
+<td>Kimi K3</td>
+<td style="text-align: right;">8 harnesses</td>
+<td>Automated final-state checks</td>
+<td>Detailed article; task dataset and raw runs not released</td>
+</tr>
+<tr>
+<td><strong>Databricks coding-agent benchmark</strong></td>
+<td style="text-align: right;">Not disclosed</td>
+<td>Internal repository engineering</td>
+<td>Several controlled same-model comparisons</td>
+<td style="text-align: right;">Pi, Claude Code, Codex, others</td>
+<td>Held-out tests</td>
+<td>Private benchmark; methodology and summary results published</td>
+</tr>
+<tr>
+<td><strong>OpenBench</strong></td>
+<td style="text-align: right;">Multiple tiers; 24 currently validated
+tasks</td>
+<td>Coding and terminal work</td>
+<td>GPT-5.5 Medium track; separate open-model panels</td>
+<td style="text-align: right;">Up to 8 harnesses</td>
+<td>External checker scripts; optional partial credit</td>
+<td>Public code, tasks, datasets, runner, reports</td>
+</tr>
+<tr>
+<td><strong>Artificial Analysis</strong></td>
+<td style="text-align: right;">326</td>
+<td>Repository, terminal, and technical Q&amp;A</td>
+<td>Claude Opus 4.7 comparison view</td>
+<td style="text-align: right;">Claude Code, Cursor CLI, OpenCode</td>
+<td>Existing benchmark verifiers; 3 attempts/task</td>
+<td>Public interactive results and methodology</td>
+</tr>
+<tr>
+<td><strong>Harness Efficiency Bench</strong></td>
+<td style="text-align: right;">12 core + 10 SWE-bench Lite + context
+probes</td>
+<td>Coding efficiency and context handling</td>
+<td>DeepSeek V4 Flash and Nemotron 3 Ultra</td>
+<td style="text-align: right;">12 configurations</td>
+<td>Task success plus network-level token accounting</td>
+<td>Blog and paper; referenced repo unavailable</td>
+</tr>
+<tr>
+<td><strong>Composio DeepSeek V4 Flash</strong></td>
+<td style="text-align: right;">30</td>
+<td>Multi-SaaS workflows</td>
+<td>DeepSeek V4 Flash</td>
+<td style="text-align: right;">8 harnesses</td>
+<td>Strict final-state verifier</td>
+<td>Detailed article; no released suite/traces</td>
+</tr>
+<tr>
+<td><strong>Floatboat harness study</strong></td>
+<td style="text-align: right;">Five benchmark suites</td>
+<td>Coding, terminal, browser, automation, tool use</td>
+<td>DeepSeek V4 Flash for harness comparisons</td>
+<td style="text-align: right;">Floatboat vs reference harnesses</td>
+<td>Existing benchmark graders</td>
+<td>Vendor report; reproducibility varies by underlying suite</td>
+</tr>
+<tr>
+<td><strong>Local Pi vs OpenCode test</strong></td>
+<td style="text-align: right;">Small/local</td>
+<td>Local coding-agent use</td>
+<td>Qwen3.6 35B A3B</td>
+<td style="text-align: right;">2</td>
+<td>Author-defined task success</td>
+<td>Blog methodology only</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h1 id="frontierharness-eval-v1.0">1. FrontierHarness Eval v1.0</h1>
+<h2 id="what-it-is">What it is</h2>
+<p>FrontierHarness is a public benchmark created by
+<strong>Runta</strong> specifically to compare coding-agent harnesses
+while holding the model and runtime constant. Version 1.0 ran
+<strong>360 trials</strong>: 30 tasks × 12 harness configurations.</p>
+<p>It is currently the strongest starting point for someone who wants to
+run a new harness against a common, published suite.</p>
+<h2 id="task-set">Task set</h2>
+<p>The benchmark contains <strong>30 software-engineering
+tasks</strong>:</p>
+<ul>
+<li><strong>21 Terminal-Bench 2.1 tasks</strong> — command-line jobs
+such as recovering databases, building extensions, repairing
+repositories, processing data, and working with system tools.</li>
+<li><strong>9 DeepSWE tasks</strong> — bug fixes or feature work in
+pinned open-source repositories, graded with hidden tests.</li>
+</ul>
+<p>Every task directory in the public repository contains the
+instruction shown to each harness and public environment metadata.</p>
+<h2 id="harnesses-tested">Harnesses tested</h2>
+<p>The original evaluation covered nine harnesses in 12
+configurations:</p>
+<ul>
+<li>Codex</li>
+<li>Claude Code</li>
+<li>Pi</li>
+<li>Oh My Pi</li>
+<li>Kimi Code</li>
+<li>OpenCode</li>
+<li>Hermes</li>
+<li>Exo Harness</li>
+<li>DeepSeek Harness in Standard, Minimal, Creator, and PTC
+configurations</li>
+</ul>
+<p>Published versions are recorded in the repository. Examples include
+Codex 0.148.0, Claude Code 2.1.237, Pi 0.84.2, Kimi Code 0.37.2, and
+OpenCode 1.18.19.</p>
+<h2 id="what-was-controlled">What was controlled</h2>
+<ul>
+<li><strong>Model:</strong> Kimi K3 for all published runs</li>
+<li><strong>Provider:</strong> Fireworks for the original
+evaluation</li>
+<li><strong>Runtime:</strong> One golden checkpoint with the harnesses
+and task environments installed</li>
+<li><strong>Starting state:</strong> A fresh restore for every
+trial</li>
+<li><strong>Resources:</strong> Identical vCPU, memory, disk size, disk
+contents, and memory state</li>
+<li><strong>Attempts:</strong> One canonical attempt per harness/task
+cell</li>
+<li><strong>Warm-cache protection:</strong> Formal tasks were not run
+before the checkpoint was frozen</li>
+<li><strong>Scoring:</strong> Deterministic verifier-based pass/fail
+outcomes</li>
+</ul>
+<p>A gateway supported both OpenAI Responses and Anthropic Messages
+interfaces so harnesses could use their normal protocol against the same
+underlying model weights.</p>
+<h2 id="metrics">Metrics</h2>
+<p>FrontierHarness reports:</p>
+<ul>
+<li>Pass rate</li>
+<li>Effective cost per pass</li>
+<li>Median cost</li>
+<li>Cache-hit rate</li>
+<li>Median wall-clock time</li>
+<li>Task-level results</li>
+<li>Failed-run costs, rather than calculating efficiency from successful
+runs alone</li>
+</ul>
+<h2 id="original-results">Original results</h2>
+<table>
+<colgroup>
+<col style="width: 15%" />
+<col style="width: 21%" />
+<col style="width: 21%" />
+<col style="width: 21%" />
+<col style="width: 21%" />
+</colgroup>
+<thead>
+<tr>
+<th>Harness/configuration</th>
+<th style="text-align: right;">Pass rate</th>
+<th style="text-align: right;">Effective cost per pass</th>
+<th style="text-align: right;">Cache rate</th>
+<th style="text-align: right;">Median successful time</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Codex</td>
+<td style="text-align: right;"><strong>66.7%</strong></td>
+<td style="text-align: right;">$3.47</td>
+<td style="text-align: right;">88.0%</td>
+<td style="text-align: right;">6m 43s</td>
+</tr>
+<tr>
+<td>DSH Creator</td>
+<td style="text-align: right;">63.3%</td>
+<td style="text-align: right;">$3.28</td>
+<td style="text-align: right;">84.3%</td>
+<td style="text-align: right;">6m 44s</td>
+</tr>
+<tr>
+<td>Claude Code</td>
+<td style="text-align: right;">63.3%</td>
+<td style="text-align: right;">$18.34</td>
+<td style="text-align: right;">67.8%</td>
+<td style="text-align: right;">9m 38s</td>
+</tr>
+<tr>
+<td>Pi</td>
+<td style="text-align: right;">60.0%</td>
+<td style="text-align: right;">$2.43</td>
+<td style="text-align: right;">79.4%</td>
+<td style="text-align: right;">7m 33s</td>
+</tr>
+<tr>
+<td>DSH PTC</td>
+<td style="text-align: right;">60.0%</td>
+<td style="text-align: right;">$4.58</td>
+<td style="text-align: right;">87.2%</td>
+<td style="text-align: right;">7m 44s</td>
+</tr>
+<tr>
+<td>DSH Standard</td>
+<td style="text-align: right;">60.0%</td>
+<td style="text-align: right;">$3.46</td>
+<td style="text-align: right;">86.5%</td>
+<td style="text-align: right;">6m 17s</td>
+</tr>
+<tr>
+<td>Oh My Pi</td>
+<td style="text-align: right;">56.7%</td>
+<td style="text-align: right;">$4.75</td>
+<td style="text-align: right;">82.2%</td>
+<td style="text-align: right;">6m 46s</td>
+</tr>
+<tr>
+<td>Kimi Code</td>
+<td style="text-align: right;">56.7%</td>
+<td style="text-align: right;">$3.65</td>
+<td style="text-align: right;">88.0%</td>
+<td style="text-align: right;">7m 56s</td>
+</tr>
+<tr>
+<td>DSH Minimal</td>
+<td style="text-align: right;">56.7%</td>
+<td style="text-align: right;">$4.72</td>
+<td style="text-align: right;">84.6%</td>
+<td style="text-align: right;"><strong>5m 41s</strong></td>
+</tr>
+<tr>
+<td>Exo Harness</td>
+<td style="text-align: right;">53.3%</td>
+<td style="text-align: right;"><strong>$1.05</strong></td>
+<td style="text-align: right;">70.3%</td>
+<td style="text-align: right;">6m 17s</td>
+</tr>
+<tr>
+<td>OpenCode</td>
+<td style="text-align: right;">50.0%</td>
+<td style="text-align: right;">$3.24</td>
+<td style="text-align: right;">78.4%</td>
+<td style="text-align: right;">6m 27s</td>
+</tr>
+<tr>
+<td>Hermes</td>
+<td style="text-align: right;">50.0%</td>
+<td style="text-align: right;">$2.90</td>
+<td style="text-align: right;">85.9%</td>
+<td style="text-align: right;">6m 58s</td>
+</tr>
+</tbody>
+</table>
+<p>The original field passed 209 of 360 trials, or 58.1%. Pass rates
+fell within a 16.7-point range, while effective cost per pass varied by
+roughly <strong>17.5×</strong>.</p>
+<h2 id="independent-use-mouse">Independent use: Mouse</h2>
+<p>Mouse subsequently ran the published suite and reported:</p>
+<ul>
+<li><strong>24/30 tasks passed (80%)</strong></li>
+<li>18/21 Terminal-Bench tasks</li>
+<li>6/9 DeepSWE tasks</li>
+<li>$3.13 effective cost per pass</li>
+<li>4m 10s median successful time</li>
+</ul>
+<p>Mouse attributes much of the result to a deterministic completion
+loop that requires inspection and verification before stopping. This is
+a useful example of the benchmark being used outside its original
+report, although the result is self-reported by Mouse’s vendor and still
+uses one trial per task.</p>
+<h2 id="strengths">Strengths</h2>
+<ul>
+<li>Explicitly designed to isolate harness effects</li>
+<li>Public tasks and task-level results</li>
+<li>Pinned harness versions</li>
+<li>Reusable workflow for adding another harness</li>
+<li>Fresh, equivalent runtime restore for every trial</li>
+<li>Includes terminal and repository-level tasks</li>
+<li>Reports failed-run cost and cache behavior</li>
+</ul>
+<h2 id="limitations">Limitations</h2>
+<ul>
+<li>Only 30 tasks and one run per cell</li>
+<li>No uncertainty intervals; many differences are too small to
+confidently rank</li>
+<li>One model, Kimi K3, so results may change with Claude, GPT, Gemini,
+or other models</li>
+<li>Coding and terminal work only</li>
+<li>Runta created the evaluation and supplied the proprietary
+runtime</li>
+<li>Full internal infrastructure, credentials, private evidence, and
+deployment configuration are not public</li>
+<li>Some cost differences may reflect model–protocol or model–harness
+fit, not universally better engineering</li>
+</ul>
+<h2 id="sources-and-artifacts">Sources and artifacts</h2>
+<ul>
+<li><a href="https://frontierharness.org/">FrontierHarness live
+leaderboard</a></li>
+<li><a
+href="https://github.com/frontier-harness-eval/eval">FrontierHarness
+public repository</a></li>
+<li><a
+href="https://runta.com/blog/introducing-frontierharness-eval/">Runta
+launch and methodology article</a></li>
+<li><a
+href="https://www.mouse.dev/blog/mouse-on-frontierharness/">Mouse’s
+FrontierHarness run</a></li>
+<li><a href="https://www.tbench.ai/">Terminal-Bench</a></li>
+</ul>
+<hr />
+<h1 id="composios-kimi-k3-multi-harness-evaluation">2. Composio’s Kimi
+K3 multi-harness evaluation</h1>
+<h2 id="what-it-is-1">What it is</h2>
+<p>Composio evaluated the same Kimi K3 model through <strong>eight agent
+harnesses</strong> on business-application tool-use workflows. This
+evaluation complements FrontierHarness because it tests agents acting
+through hosted MCP tools rather than editing code in a terminal.</p>
+<p>The earlier X thread described an interim six-harness, 26-task
+comparison. Composio’s later full article reports the finalized
+evaluation as <strong>eight harnesses across 25 valid
+tasks</strong>.</p>
+<h2 id="task-set-1">Task set</h2>
+<p>The valid set contains <strong>25 tasks</strong> involving:</p>
+<ul>
+<li>Gmail</li>
+<li>Google Calendar</li>
+<li>Google Sheets</li>
+<li>Airtable</li>
+<li>GitHub</li>
+<li>Slack</li>
+<li>Notion</li>
+<li>Linear</li>
+<li>PagerDuty</li>
+</ul>
+<p>Tasks range from read-only audits to long workflows that modify
+multiple applications. Examples include:</p>
+<ul>
+<li>GitHub repository sweep</li>
+<li>Slack action-item extraction</li>
+<li>Calendar free/busy batch</li>
+<li>Sheets approval update</li>
+<li>Recurring calendar repair</li>
+<li>CRM migration archive</li>
+<li>Reimbursement audit</li>
+<li>Invoice synchronization</li>
+<li>Refund-ledger updates</li>
+<li>Vendor-directory verification</li>
+</ul>
+<p>The evaluation began with 30 tasks. Five were removed for failing to
+provide a valid common comparison, leaving the same 25-task set for
+every harness.</p>
+<h2 id="harnesses-tested-1">Harnesses tested</h2>
+<ul>
+<li>Oh My Pi</li>
+<li>Kimi Code</li>
+<li>Hermes Agent</li>
+<li>Claude Code</li>
+<li>Pi Agent</li>
+<li>OpenCode</li>
+<li>Grok Build</li>
+<li>Codex</li>
+</ul>
+<h2 id="what-was-controlled-1">What was controlled</h2>
+<ul>
+<li><strong>Model:</strong> <code>moonshotai/kimi-k3</code></li>
+<li><strong>Provider:</strong> OpenRouter</li>
+<li><strong>Reasoning:</strong> Maximum reasoning</li>
+<li><strong>Tools:</strong> The same hosted Composio MCP tools</li>
+<li><strong>Instructions:</strong> The same task instructions</li>
+<li><strong>Data:</strong> The same connected-application data</li>
+<li><strong>Scoring:</strong> The same automated scoring rules</li>
+<li><strong>Attempts:</strong> One valid scored run per task and
+harness</li>
+</ul>
+<p>Attempts with provider, runtime, or evaluator failures were discarded
+and rerun with the same configuration. Ordinary failures and
+fixed-budget timeouts remained failures.</p>
+<h2 id="grading-design">Grading design</h2>
+<p>The grader inspected the <strong>final state of connected
+applications</strong>, rather than trusting the agent’s final message.
+Checks included:</p>
+<ul>
+<li>Exact record counts</li>
+<li>Exact identifier or name sets</li>
+<li>Numeric values within tolerance</li>
+<li>Required rows, messages, or replies</li>
+<li>Records that must remain unchanged</li>
+<li>Invalid or unsafe records that must remain excluded</li>
+</ul>
+<p>This is a particularly useful design for tool-use agents because a
+confident textual answer cannot turn an incorrect sequence of actions
+into a pass.</p>
+<h2 id="results">Results</h2>
+<table>
+<colgroup>
+<col style="width: 13%" />
+<col style="width: 17%" />
+<col style="width: 17%" />
+<col style="width: 17%" />
+<col style="width: 17%" />
+<col style="width: 17%" />
+</colgroup>
+<thead>
+<tr>
+<th>Harness</th>
+<th style="text-align: right;">Tasks passed</th>
+<th style="text-align: right;">Pass rate</th>
+<th style="text-align: right;">Median time</th>
+<th style="text-align: right;">Tool calls</th>
+<th style="text-align: right;">Estimated cost per success</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Oh My Pi</td>
+<td style="text-align: right;"><strong>22/25</strong></td>
+<td style="text-align: right;"><strong>88%</strong></td>
+<td style="text-align: right;">231.7s</td>
+<td style="text-align: right;">248</td>
+<td style="text-align: right;">$0.52</td>
+</tr>
+<tr>
+<td>Kimi Code</td>
+<td style="text-align: right;">21/25</td>
+<td style="text-align: right;">84%</td>
+<td style="text-align: right;">281.9s</td>
+<td style="text-align: right;">301</td>
+<td style="text-align: right;">$0.64</td>
+</tr>
+<tr>
+<td>Hermes Agent</td>
+<td style="text-align: right;">20/25</td>
+<td style="text-align: right;">80%</td>
+<td style="text-align: right;">164.0s</td>
+<td style="text-align: right;">262</td>
+<td style="text-align: right;"><strong>$0.46</strong></td>
+</tr>
+<tr>
+<td>Claude Code</td>
+<td style="text-align: right;">19/25</td>
+<td style="text-align: right;">76%</td>
+<td style="text-align: right;">330.5s</td>
+<td style="text-align: right;">293</td>
+<td style="text-align: right;">$1.96</td>
+</tr>
+<tr>
+<td>Pi Agent</td>
+<td style="text-align: right;">18/25</td>
+<td style="text-align: right;">72%</td>
+<td style="text-align: right;"><strong>156.2s</strong></td>
+<td style="text-align: right;"><strong>223</strong></td>
+<td style="text-align: right;">$0.57</td>
+</tr>
+<tr>
+<td>OpenCode</td>
+<td style="text-align: right;">18/25</td>
+<td style="text-align: right;">72%</td>
+<td style="text-align: right;">270.5s</td>
+<td style="text-align: right;">299</td>
+<td style="text-align: right;">$0.72</td>
+</tr>
+<tr>
+<td>Grok Build</td>
+<td style="text-align: right;">18/25</td>
+<td style="text-align: right;">72%</td>
+<td style="text-align: right;">196.2s</td>
+<td style="text-align: right;">402</td>
+<td style="text-align: right;">$0.66</td>
+</tr>
+<tr>
+<td>Codex</td>
+<td style="text-align: right;">17/25</td>
+<td style="text-align: right;">68%</td>
+<td style="text-align: right;">233.4s</td>
+<td style="text-align: right;">297</td>
+<td style="text-align: right;">$0.66</td>
+</tr>
+</tbody>
+</table>
+<p>Cost was estimated using OpenRouter’s Kimi K3 list prices on a shared
+24-task slice; one task lacked complete usage data for at least one
+harness.</p>
+<h2 id="what-the-task-distribution-showed">What the task distribution
+showed</h2>
+<ul>
+<li>All eight harnesses passed the same <strong>12 tasks</strong>.</li>
+<li>All eight failed the same <strong>three hardest tasks</strong>.</li>
+<li>The harnesses disagreed on <strong>10 middle-difficulty
+tasks</strong>.</li>
+</ul>
+<p>Those 10 mixed tasks provide the best evidence of a harness effect
+because the model, provider, tools, instructions, and application data
+remained fixed.</p>
+<p>The study also found that more tool calls did not consistently help.
+Grok Build made 402 calls and Pi made 223, but both passed 18 tasks.</p>
+<h2 id="strengths-1">Strengths</h2>
+<ul>
+<li>Same model, provider, reasoning level, tools, prompts, and data</li>
+<li>Tests consequential multi-application workflows, not only
+coding</li>
+<li>Uses application-state verification</li>
+<li>Reports pass rate, latency, tokens, tool calls, and estimated
+cost</li>
+<li>Discusses task-level disagreement and shared failures</li>
+</ul>
+<h2 id="limitations-1">Limitations</h2>
+<ul>
+<li>Only 25 tasks and one scored run per cell</li>
+<li>No confidence intervals or repeated-run reliability</li>
+<li>The task dataset, raw traces, and evaluator code are not publicly
+released</li>
+<li>Composio sells the MCP tool infrastructure used in the study</li>
+<li>Claude Code and Codex were tested with a non-native external
+model</li>
+<li>Costs are estimates based on list prices</li>
+<li>Removing tasks and replacing infrastructure-invalid runs introduces
+judgment calls that cannot be independently audited from the article
+alone</li>
+</ul>
+<h2 id="sources">Sources</h2>
+<ul>
+<li><a
+href="https://composio.dev/content/best-ai-agent-harnesses">Composio
+full evaluation: “8 Best AI Agent Harnesses in 2026”</a></li>
+<li><a
+href="https://x.com/composio/status/2083161873357111297">Composio’s
+original X thread</a></li>
+</ul>
+<hr />
+<h1 id="databricks-internal-coding-agent-benchmark">3. Databricks’
+internal coding-agent benchmark</h1>
+<h2 id="what-it-is-2">What it is</h2>
+<p>Databricks built an internal benchmark from work performed in its own
+multi-million-line codebase. The goal was to measure how coding agents
+perform on realistic company tasks and how performance changes with
+model, harness, and price.</p>
+<p>Unlike FrontierHarness, this is not a public suite that another
+organization can rerun. Its value comes from the realism of the tasks
+and from Databricks’ reported same-model harness comparisons.</p>
+<h2 id="task-construction">Task construction</h2>
+<p>Databricks reports deriving tasks from real merged pull requests
+across a codebase using more than 10 languages and technologies,
+including Scala, Go, Rust, Java, Python, TypeScript, Bazel, and
+Protobuf.</p>
+<p>The construction process reportedly included:</p>
+<ol type="1">
+<li>Selecting recent, human-written pull requests</li>
+<li>Requiring high-quality tests and reasonably self-contained
+changes</li>
+<li>Rewriting the original intent into a solution-free task prompt</li>
+<li>Holding out tests for grading</li>
+<li>Manually reviewing tasks</li>
+<li>Sealing git history after traces revealed that agents could recover
+the original implementation from repository history</li>
+</ol>
+<p>The number of tasks was not publicly disclosed.</p>
+<h2 id="what-was-evaluated">What was evaluated</h2>
+<p>Databricks evaluated combinations of models and coding harnesses used
+by its engineers. The harness analysis highlighted Pi, Claude Code, and
+Codex.</p>
+<p>The most relevant comparison held the <strong>model and thinking
+effort constant</strong> while changing the harness.</p>
+<h2 id="grading-and-metrics">Grading and metrics</h2>
+<ul>
+<li>Pass/fail based on held-out test execution</li>
+<li>End-to-end model cost per task</li>
+<li>Pass rate and quality tiers</li>
+<li>Context and run behavior examined through traces</li>
+</ul>
+<p>No LLM judge was used for the primary correctness decision.</p>
+<h2 id="reported-harness-findings">Reported harness findings</h2>
+<p>Databricks reports that:</p>
+<ul>
+<li>The same model at the same thinking effort could cost <strong>more
+than 2× as much per task</strong> in one harness as another while
+maintaining similar quality.</li>
+<li>Pi sent roughly <strong>3× less context per turn</strong> in the
+cited comparison.</li>
+<li>Pi maintained a tighter working set and completed tasks in fewer
+runs.</li>
+<li>Pi with Opus 4.8 at <code>xhigh</code> reasoning reportedly achieved
+the highest overall pass rate at substantially lower cost than Claude
+Code and Codex in the configurations discussed by Earendil.</li>
+</ul>
+<p>The broader study also argues that token price is a poor proxy for
+completed-task price: a cheaper model or token rate can require more
+context, turns, and retries.</p>
+<h2 id="related-pi-autoresearch-evidence">Related Pi autoresearch
+evidence</h2>
+<p>Earendil’s article also discusses Shopify’s
+<code>pi-autoresearch</code>, an extension that repeatedly changes code,
+runs a measurable experiment, keeps improvements, and rejects
+regressions. Reported internal examples include much faster tests,
+faster React component mounting, and reduced build times.</p>
+<p>These are useful case studies of an optimization harness, but they
+are <strong>not the Databricks benchmark</strong> and should not be
+treated as a standardized harness leaderboard.</p>
+<h2 id="strengths-2">Strengths</h2>
+<ul>
+<li>Tasks derived from real internal engineering work</li>
+<li>Broad, large, multilingual production codebase</li>
+<li>Test-based grading</li>
+<li>Same-model, same-thinking-effort harness comparisons</li>
+<li>Identified and closed a realistic contamination route through git
+history</li>
+<li>Measures completed-task economics rather than token price alone</li>
+</ul>
+<h2 id="limitations-2">Limitations</h2>
+<ul>
+<li>Private task set and undisclosed task count</li>
+<li>No raw trajectories, per-task result table, or evaluator
+release</li>
+<li>Cannot be independently rerun</li>
+<li>One company’s codebase and engineering distribution</li>
+<li>Earendil’s summary is written by the organization behind Pi and
+should be read alongside Databricks’ primary report</li>
+</ul>
+<h2 id="sources-1">Sources</h2>
+<ul>
+<li><a
+href="https://www.databricks.com/blog/benchmarking-coding-agents-databricks-multi-million-line-codebase">Databricks,
+“Benchmarking Coding Agents on Databricks’ Multi-Million Line
+Codebase”</a></li>
+<li><a
+href="https://earendil.com/posts/pi-autoresearch-and-databricks/">Earendil,
+“Pi, Minimal and Performant”</a></li>
+</ul>
+<hr />
+<h1 id="floatboats-multi-benchmark-harness-study">4. Floatboat’s
+multi-benchmark harness study</h1>
+<h2 id="what-it-is-3">What it is</h2>
+<p>Floatboat evaluated harness effects across several existing task
+suites rather than creating one new task set. Its central comparison
+runs the same <strong>DeepSeek V4 Flash</strong> model through different
+harnesses and compares the gain from changing the harness with the gain
+from changing the model.</p>
+<h2 id="evaluation-suites-used">Evaluation suites used</h2>
+<p>The report covers five benchmark families:</p>
+<ul>
+<li>Terminal-Bench 2.1</li>
+<li>AutomationBench</li>
+<li>Toolathlon</li>
+<li>BrowseComp</li>
+<li>DeepSWE</li>
+</ul>
+<p>Together these span terminal work, automation, tool use, browsing,
+and repository-level software engineering.</p>
+<h2 id="harness-leverage-ratio">Harness Leverage Ratio</h2>
+<p>Floatboat proposes a <strong>Harness Leverage Ratio
+(HLR)</strong>:</p>
+<blockquote>
+<p>improvement from changing the harness ÷ improvement from changing the
+model</p>
+</blockquote>
+<p>The metric is intended to answer whether engineering the agent loop
+produced a larger gain than buying a stronger model. Floatboat reports
+an HLR of 3.6× on DeepSWE in one comparison.</p>
+<h2 id="why-it-is-useful">Why it is useful</h2>
+<ul>
+<li>Tests whether harness gains transfer across multiple domains</li>
+<li>Frames harness performance relative to model upgrades</li>
+<li>Uses established external benchmarks rather than only vendor-created
+tasks</li>
+</ul>
+<h2 id="limitations-3">Limitations</h2>
+<ul>
+<li>Vendor-created evaluation of the vendor’s own harness</li>
+<li>Exact controls and reproducibility depend on each underlying
+benchmark</li>
+<li>Cross-benchmark summary numbers can hide different budgets, graders,
+and task distributions</li>
+<li>HLR can be unstable when the denominator—the measured model
+improvement—is small</li>
+<li>Results should be verified from released trajectories or independent
+reruns where available</li>
+</ul>
+<h2 id="source">Source</h2>
+<ul>
+<li><a href="https://floatboat.ai/news/harness-benchmark">Floatboat
+harness benchmark report</a></li>
+</ul>
+<hr />
+<h1 id="openbench">5. OpenBench</h1>
+<h2 id="what-it-is-4">What it is</h2>
+<p>OpenBench is an open-source benchmark and runner built explicitly
+around the question: given the same model and task, how much does the
+coding-agent harness matter? It separates <strong>Harness
+Bench</strong>, which varies the harness, from <strong>Gateway
+Bench</strong>, which fixes the Pi harness and varies the API
+gateway.</p>
+<h2 id="task-sets-and-tracks">Task sets and tracks</h2>
+<p>OpenBench includes several separately reported tiers:</p>
+<ul>
+<li>Eight historical repo-authored coding tasks, including
+<code>make-ci-green</code>, <code>add-feature</code>, and
+<code>misleading-error</code></li>
+<li>Eleven Exercism-derived tasks with provenance</li>
+<li>Five adapted Terminal-Bench tasks</li>
+<li>A Harbor-native <code>openbench-lite</code> suite</li>
+</ul>
+<p>Its primary same-model <strong>Track A</strong> pins compatible
+harnesses to GPT-5.5 Medium. Separate open-model panels test Pi,
+OpenCode, Claude, and Codex adapters with models including GLM-5.2,
+DeepSeek V4 Flash, Kimi K2.7 Code, and GLM-4.7 Flash. Harness support
+includes Codex, Pi, OpenCode, Cursor, Devin, Aider, Grok Build, and an
+open-model Claude adapter.</p>
+<h2 id="evaluation-design">Evaluation design</h2>
+<ul>
+<li>Fresh disposable workspace for every cell</li>
+<li>External <code>checker.sh</code> is the sole judge; harness
+self-reports never count</li>
+<li>Optional <code>SCORE:</code> contract provides partial credit</li>
+<li>Checkers must fail on untouched workspaces and pass on golden
+solutions</li>
+<li>Built-in null harness acts as a negative control</li>
+<li>Repeated trials and Wilson 95% confidence intervals</li>
+<li>Pinned models, adapters, command lines, timeouts, and harness
+versions</li>
+<li>Public, sealed result bundles and append-only JSONL data</li>
+</ul>
+<h2 id="findings">Findings</h2>
+<p>OpenBench reports that frontier harnesses reached a correctness
+ceiling on its easier repo-authored tasks, while efficiency continued to
+separate them: up to roughly <strong>4× wall-clock spread</strong> and
+<strong>8× token spread</strong>. Pi was repeatedly among the fastest
+and leanest. A 72-run open-model panel reportedly cost about $1.02, and
+a 45-cell Terminal-Bench run produced 12/15 passes for each of three
+harnesses.</p>
+<h2 id="strengths-and-limitations">Strengths and limitations</h2>
+<p>This is one of the most reproducible projects in the field: code,
+tasks, datasets, adapters, checker validation, confidence intervals, and
+a cheap reproduction path are public. However, the task counts remain
+small, several easier tiers saturate, closed harnesses cannot use every
+open model, and some Terminal-Bench data was still local-only when
+documented.</p>
+<p><strong>Sources:</strong> <a
+href="https://github.com/minghinmatthewlam/openbench">OpenBench
+repository</a> · <a href="https://openbench.run/">Live
+leaderboard</a></p>
+<hr />
+<h1 id="harness-efficiency-bench">6. Harness Efficiency Bench</h1>
+<h2 id="what-it-tested">What it tested</h2>
+<p>Eishan Lawrence ran <strong>12 harness configurations</strong> on the
+same 12 small Python tasks, first with DeepSeek V4 Flash and then with
+Nvidia Nemotron 3 Ultra through OpenRouter. Harnesses included Aider and
+Aider Architect, Claude Code, Codex, Goose, Hermes, Kilo, Kimi Code,
+Nanobot, OpenClaw, OpenCode, and Qwen Code.</p>
+<p>Follow-ups tested four harnesses on 10 SWE-bench Lite tasks and
+injected 20k, 50k, and 100k irrelevant tokens to probe context
+handling.</p>
+<h2 id="main-results">Main results</h2>
+<ul>
+<li>Tokens per solved core task ranged from roughly
+<strong>3,500–4,100</strong> for Aider Architect to
+<strong>191,000–292,000</strong> for OpenClaw—a 70–80× spread.</li>
+<li>The ordering was stable across two unrelated models.</li>
+<li>Startup prompt/tool overhead ranged from about 700 to 26,000
+tokens.</li>
+<li>Startup overhead × turn count predicted tokens per solved task with
+reported <strong>R² = 0.99</strong>.</li>
+<li>Prompt caching could reverse cost rankings: raw token count alone
+was misleading.</li>
+<li>On 10 SWE-bench Lite tasks, all four selected harnesses solved the
+same one task while spending from 0.8M to 15M tokens.</li>
+<li>The 100k context probe exposed sharply different behavior: full
+pass-through, attention failure, explicit refusal, crashes, and silent
+truncation.</li>
+</ul>
+<h2 id="why-it-matters">Why it matters</h2>
+<p>This study evaluates harness <strong>efficiency and context
+integrity</strong>, not only pass rate. Running the core suite with two
+models helps show that the ranking reflects harness behavior rather than
+one model’s quirks.</p>
+<h2 id="limitations-4">Limitations</h2>
+<p>The core tasks are small and nearly saturated, there was one run per
+pairing, the hard-task follow-up was only 10 tasks, and gateway-specific
+caching affects costs. The article links a GitHub repository, but it was
+unavailable during verification; the public blog and paper are therefore
+the accessible evidence.</p>
+<p><strong>Source:</strong> <a
+href="https://www.eishanlawrence.com/blog/harness-efficiency-bench">“I
+tested 12 coding harnesses for efficiency”</a></p>
+<hr />
+<h1 id="artificial-analysis-coding-agent-index">7. Artificial Analysis
+Coding Agent Index</h1>
+<h2 id="what-it-is-5">What it is</h2>
+<p>Artificial Analysis publishes a 326-task composite coding-agent index
+and a dedicated <strong>Harness Comparison</strong> that holds Claude
+Opus 4.7 fixed while comparing Claude Code, Cursor CLI, and
+OpenCode.</p>
+<h2 id="task-set-and-scoring">Task set and scoring</h2>
+<ul>
+<li>DeepSWE: 113 tasks</li>
+<li>Terminal-Bench v2.1: 89 tasks</li>
+<li>SWE-Atlas-QnA: 124 tasks</li>
+<li>Three attempts per task</li>
+<li>Task-normalized pass@1 within each component</li>
+<li>Equal weight across the three benchmark components</li>
+</ul>
+<p>It also reports input, cached-input, and output tokens; estimated API
+cost; cache behavior; and active agent wall time.</p>
+<h2 id="why-it-stands-out">Why it stands out</h2>
+<p>At 326 tasks and three attempts per task, this has substantially more
+statistical depth than most harness studies. It also spans repository
+implementation, terminal workflows, and technical repository Q&amp;A.
+The dedicated Opus 4.7 view is a clean same-model comparison.</p>
+<h2 id="limitations-5">Limitations</h2>
+<p>Only three harnesses appear in the clean fixed-model view. The
+broader leaderboard changes both model and harness and must not be
+interpreted as a harness ranking. The site publishes methodology and
+interactive results but not a self-contained rerun bundle comparable to
+FrontierHarness or OpenBench.</p>
+<p><strong>Source:</strong> <a
+href="https://artificialanalysis.ai/agents/coding-agents">Artificial
+Analysis Coding Agent Benchmarks</a></p>
+<hr />
+<h1 id="composios-deepseek-v4-flash-evaluation">8. Composio’s DeepSeek
+V4 Flash evaluation</h1>
+<h2 id="design">Design</h2>
+<p>This second Composio study ran <strong>30 difficult multi-SaaS
+workflows</strong> through Pi Agent, Prime Agent, Oh My Pi, Claude Code,
+Codex, DeepAgents, Hermes Agent, and OpenCode using DeepSeek V4 Flash
+and the same hosted Composio MCP tools. Runs had a 900-second cap.</p>
+<p>Fixtures included decoy records and unique run tags. A strict
+programmatic verifier inspected final application state, exact
+calculations, required actions, untouched decoys, final-response format,
+and actual tool use. Partial completion did not pass.</p>
+<h2 id="results-1">Results</h2>
+<table>
+<thead>
+<tr>
+<th>Harness</th>
+<th style="text-align: right;">Reported pass rate</th>
+<th style="text-align: right;">Median time</th>
+<th style="text-align: right;">Estimated cost/success</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Pi Agent</td>
+<td style="text-align: right;"><strong>66.7%</strong></td>
+<td style="text-align: right;">132.2s</td>
+<td style="text-align: right;"><strong>$0.028</strong></td>
+</tr>
+<tr>
+<td>Prime Agent</td>
+<td style="text-align: right;">62.5%*</td>
+<td style="text-align: right;">242.1s</td>
+<td style="text-align: right;">$0.131</td>
+</tr>
+<tr>
+<td>Oh My Pi</td>
+<td style="text-align: right;">56.7%</td>
+<td style="text-align: right;">272.4s</td>
+<td style="text-align: right;">$0.103</td>
+</tr>
+<tr>
+<td>Claude Code</td>
+<td style="text-align: right;">53.3%</td>
+<td style="text-align: right;"><strong>122.7s</strong></td>
+<td style="text-align: right;">$0.195</td>
+</tr>
+<tr>
+<td>Codex</td>
+<td style="text-align: right;">53.3%</td>
+<td style="text-align: right;">245.0s</td>
+<td style="text-align: right;">$0.081</td>
+</tr>
+<tr>
+<td>DeepAgents</td>
+<td style="text-align: right;">53.3%</td>
+<td style="text-align: right;">187.1s</td>
+<td style="text-align: right;">$0.045</td>
+</tr>
+<tr>
+<td>Hermes Agent</td>
+<td style="text-align: right;">50.0%</td>
+<td style="text-align: right;">175.5s</td>
+<td style="text-align: right;">$0.056+</td>
+</tr>
+<tr>
+<td>OpenCode</td>
+<td style="text-align: right;">46.7%</td>
+<td style="text-align: right;">129.7s</td>
+<td style="text-align: right;">$0.073</td>
+</tr>
+</tbody>
+</table>
+<p>Across 240 scheduled runs, 129 succeeded. Only six workflows were
+passed by every harness.</p>
+<h2 id="important-caveats">Important caveats</h2>
+<p>This comparison is less clean than Composio’s Kimi K3 study. Pi used
+a different reasoning setting and two providers; only 24 of Prime’s 30
+runs were gradable; Hermes lacked final usage on two timeouts; and costs
+are estimates. The tasks, traces, and verifier are not released. It
+remains useful because these imperfections are disclosed and the
+application-state grading is strong.</p>
+<p><strong>Source:</strong> <a
+href="https://composio.dev/content/best-agent-harness-deepseek-v4-flash">Composio,
+“Finding the Best Harness for DeepSeek V4 Flash”</a></p>
+<hr />
+<h1 id="smaller-and-emerging-harness-evaluations">9. Smaller and
+emerging harness evaluations</h1>
+<h2 id="pdd-pi-versus-official-deepseek-harness">9.1 PDD: Pi versus
+official DeepSeek Harness</h2>
+<p>Prompt Driven Development published a highly controlled but small
+local comparison using the same Qwen3.8 27B MLX model, machine,
+endpoint, sampling, context, reasoning setting, task bytes, checker, and
+timeout. Pi 0.73.1 and DeepSeek Harness 0.1.1-rc.2 each ran four
+OpenBench tasks twice, with order reversed between trials.</p>
+<p>Pi passed 6/8 externally checked runs versus DSH’s 4/8 and used 14%
+less total wall time. However, the entire outcome gap came from one
+task: six pairs tied and only two favored Pi. The authors explicitly
+reject a general ranking or significance claim. Public artifacts include
+runner code, pinned dependencies, clean result JSON, task hashes,
+external scores, timing, and request telemetry. This is a strong
+template for transparent paired experiments despite its tiny sample.</p>
+<p><strong>Source:</strong> <a
+href="https://github.com/promptdriven/pdd/tree/main/research/omlx-qwen38-pi-deepseek-harness-2026-08-23">PDD
+Pi vs DeepSeek Harness study</a></p>
+<h2 id="ten-task-glm-5.3-harness-comparison">9.2 Ten-task GLM 5.3
+harness comparison</h2>
+<p>Carlo Capocasa ran Claude Code, OpenCode, Pi, zcode, Hermes, and
+3code on the same 10 difficulty-selected SWE-bench Verified tasks with
+GLM 5.3. 3code and OpenCode each reportedly solved 9/10; Pi solved 6/10.
+The test emphasizes total tokens and cache rate as well as solves.</p>
+<p>This is useful emerging evidence but weak for ranking: it uses 10
+selected tasks, one run per cell, has no raw result release, and the
+author develops 3code and zcode. The author openly describes it as an
+imperfect, non-deterministic diagnostic benchmark.</p>
+<p><strong>Source:</strong> <a
+href="https://capocasa.dev/10-task-glm-5-3-harness-bench-claude-opencode-pi-zcode-hermes-and-3code">10-task
+GLM 5.3 harness bench</a></p>
+<h2 id="local-pi-versus-opencode-benchmark">9.3 Local Pi versus OpenCode
+benchmark</h2>
+<p>A smaller community evaluation compares <strong>Pi and OpenCode using
+the same local Qwen3.6 35B A3B model</strong>. It is useful as evidence
+that harness comparison is also relevant for local models, where context
+size, prompt-prefix stability, and inference latency matter greatly.</p>
+<p>It is not comparable in rigor or scale to FrontierHarness: the tasks
+and scoring are author-defined, the number of harnesses is two, and the
+report is not a reusable standardized suite.</p>
+<p><strong>Source:</strong> <a
+href="https://grigio.org/local-harness-benchmark-pi-coding-agent-vs-opencode/">Local
+Harness Benchmark: Pi Coding Agent vs. OpenCode</a></p>
+<h2 id="strands-benchmark-harnesses">9.4 Strands
+benchmark-harnesses</h2>
+<p>The <code>strands-labs/benchmark-harnesses</code> repository
+publishes harness implementations and results intended for running
+agents across software-engineering benchmarks such as SWE-Pro,
+Terminal-Bench 2, and SWE-bench Verified.</p>
+<p>This is relevant infrastructure for cross-benchmark harness testing,
+but individual claims must be inspected for whether the model, budget,
+prompts, and environment were actually held constant.</p>
+<p><strong>Source:</strong> <a
+href="https://github.com/strands-labs/benchmark-harnesses">strands-labs/benchmark-harnesses</a></p>
+<h2 id="mouse-on-frontierharness">9.5 Mouse on FrontierHarness</h2>
+<p>Mouse is not a separate task suite; it is an important
+<strong>third-party use of FrontierHarness</strong>. It demonstrates why
+a reusable benchmark matters: a new harness can run the same 30 tasks
+and compare its task-level outcomes with the original field.</p>
+<p><strong>Source:</strong> <a
+href="https://www.mouse.dev/blog/mouse-on-frontierharness/">Mouse on
+FrontierHarness</a></p>
+<hr />
+<h1 id="benchmarks-used-inside-harness-evaluations">10. Benchmarks used
+inside harness evaluations</h1>
+<p>The following are not, by themselves, controlled harness comparisons.
+They are task suites that harness researchers reuse.</p>
+<h2 id="terminal-bench">Terminal-Bench</h2>
+<p>Tests agents on terminal-based, verifiable tasks. It is the source of
+21 FrontierHarness v1.0 tasks and is also used in Floatboat and other
+harness reports.</p>
+<ul>
+<li><a href="https://www.tbench.ai/">Terminal-Bench</a></li>
+</ul>
+<h2 id="deepswe">DeepSWE</h2>
+<p>Repository-level bug-fix and feature tasks with hidden tests. Nine
+DeepSWE tasks appear in FrontierHarness, and DeepSWE also appears in
+Floatboat’s study.</p>
+<h2 id="swe-bench-verified">SWE-bench Verified</h2>
+<p>Tests real GitHub issue resolution. It is widely used to rank
+complete model-and-harness systems, but most public leaderboard rows
+change the model, harness, budget, and sampling strategy simultaneously.
+It becomes a harness evaluation only when those other variables are
+controlled.</p>
+<ul>
+<li><a href="https://www.swebench.com/">SWE-bench</a></li>
+<li><a href="https://github.com/SWE-bench/SWE-bench">SWE-bench
+repository</a></li>
+</ul>
+<h2 id="automationbench-toolathlon-and-browsecomp">AutomationBench,
+Toolathlon, and BrowseComp</h2>
+<p>These broaden harness testing beyond coding into automation,
+tool-use, and browser research. Floatboat uses them as part of its
+cross-domain evaluation. Their results should be interpreted with each
+benchmark’s original grading and contamination limitations in mind.</p>
+<hr />
+<h1 id="what-the-current-benchmarks-collectively-show">11. What the
+current benchmarks collectively show</h1>
+<h2 id="harness-choice-changes-success">Harness choice changes
+success</h2>
+<ul>
+<li>FrontierHarness: original pass rates ranged from <strong>50.0% to
+66.7%</strong> on identical tasks with Kimi K3.</li>
+<li>Composio: pass rates ranged from <strong>68% to 88%</strong> with
+Kimi K3, the provider, tools, task instructions, data, and reasoning
+level held fixed.</li>
+<li>Mouse’s later FrontierHarness run reached <strong>80%</strong>,
+suggesting that verification and stopping policy can create large gains
+on long tasks.</li>
+</ul>
+<h2 id="harness-choice-changes-cost-even-more">Harness choice changes
+cost even more</h2>
+<ul>
+<li>FrontierHarness reported roughly <strong>17.5×</strong> variation in
+effective cost per pass.</li>
+<li>Databricks reported <strong>more than 2×</strong> cost variation
+with the same model and thinking effort at similar quality.</li>
+<li>Composio reported cost per successful task from <strong>$0.46 to
+$1.96</strong>.</li>
+</ul>
+<h2 id="efficiency-and-quality-are-separate-axes">Efficiency and quality
+are separate axes</h2>
+<p>Pi was the fastest and used the fewest calls in Composio’s evaluation
+but did not have the highest pass rate. Mouse improved FrontierHarness
+pass rate through repeated verification but incurred additional model
+calls. A useful leaderboard therefore needs a Pareto view, not one
+overall rank.</p>
+<h2
+id="the-harness-effect-is-concentrated-in-middle-difficulty-tasks">The
+harness effect is concentrated in middle-difficulty tasks</h2>
+<p>Composio found that every harness passed 12 tasks and every harness
+failed three; the harness mattered most on the 10 tasks between those
+extremes. This suggests benchmark designers should prioritize
+discriminative tasks rather than filling suites with universally easy or
+impossible items.</p>
+<h2 id="native-harness-advantage-remains-unresolved">Native-harness
+advantage remains unresolved</h2>
+<p>Both FrontierHarness and Composio deliberately use Kimi K3 as a
+common model. That improves control but may disadvantage harnesses tuned
+for Claude or OpenAI models. A proper harness × model matrix is still
+needed.</p>
+<hr />
+<h1 id="evidence-quality-ranking">12. Evidence-quality ranking</h1>
+<h2 id="tier-a-reusable-public-benchmark">Tier A — reusable public
+benchmark</h2>
+<h3 id="frontierharness-and-openbench">FrontierHarness and
+OpenBench</h3>
+<p>Both provide public task definitions, task-level results, pinned
+versions, and a rerun workflow. Main weaknesses: small sample, one run
+per cell, one model, and vendor-controlled runtime.</p>
+<h2
+id="tier-b-large-controlled-evaluation-with-limited-rerun-access">Tier B
+— large controlled evaluation with limited rerun access</h2>
+<h3 id="artificial-analysis">Artificial Analysis</h3>
+<p>Its fixed-model harness view spans 326 tasks with three attempts per
+task. Interactive results and methodology are public, but it is not
+packaged as a self-contained rerun suite.</p>
+<h2
+id="tier-c-strong-controlled-company-evaluation-not-reproducible">Tier C
+— strong controlled company evaluation, not reproducible</h2>
+<h3 id="composio">Composio</h3>
+<p>Good control and strong final-state grading across business
+applications, but no released task set, raw traces, or evaluator.</p>
+<h3 id="databricks">Databricks</h3>
+<p>High-realism internal tasks and test-based grading, but private data
+and incomplete numerical reporting prevent independent verification.</p>
+<h2 id="tier-d-useful-vendor-or-community-studies">Tier D — useful
+vendor or community studies</h2>
+<h3 id="floatboat">Floatboat</h3>
+<p>Broad cross-benchmark coverage and an interesting leverage metric,
+but vendor-run and dependent on heterogeneous suites.</p>
+<h3 id="local-pi-vs-opencode">Local Pi vs OpenCode</h3>
+<p>Useful controlled local-model case study, but too small and bespoke
+to support broad rankings.</p>
+<h3 id="individual-frontierharness-submissions-such-as-mouse">Individual
+FrontierHarness submissions such as Mouse</h3>
+<p>Comparable because they reuse a public suite, but self-reported and
+still statistically noisy.</p>
+<hr />
+<h1 id="what-a-better-next-generation-harness-benchmark-should-do">13.
+What a better next-generation harness benchmark should do</h1>
+<p>A rigorous successor should combine the best aspects of
+FrontierHarness, Composio, and Databricks.</p>
+<h2 id="task-coverage">Task coverage</h2>
+<ul>
+<li>Terminal and repository engineering</li>
+<li>Browser and desktop interaction</li>
+<li>Business-application tool use</li>
+<li>Long-running optimization and experimentation</li>
+<li>Read-only, mutating, and safety-sensitive tasks</li>
+<li>A mixture of easy, discriminative middle, and hard tasks</li>
+</ul>
+<h2 id="experimental-design">Experimental design</h2>
+<ul>
+<li>Full <strong>harness × model matrix</strong>, including native and
+neutral models</li>
+<li>At least 3–5 independent runs per cell</li>
+<li>Exact model snapshots and pinned harness commits</li>
+<li>Equal token, time, and dollar-budget tracks</li>
+<li>Fresh environment restore for every trial</li>
+<li>Explicit treatment of provider and infrastructure failures</li>
+<li>Pre-registered task exclusions</li>
+<li>Confidence intervals and paired statistical tests</li>
+</ul>
+<h2 id="metrics-1">Metrics</h2>
+<ul>
+<li>Pass rate and partial-credit score</li>
+<li>Repeated-run reliability</li>
+<li>Effective cost per pass, including failed runs</li>
+<li>Wall-clock latency</li>
+<li>Input, output, reasoning, cache-read, and cache-write tokens</li>
+<li>Tool calls and tool errors</li>
+<li>Context compactions and truncations</li>
+<li>Safety violations and unintended mutations</li>
+<li>Verification quality and premature stopping</li>
+</ul>
+<h2 id="reproducibility">Reproducibility</h2>
+<ul>
+<li>Public task definitions where legally possible</li>
+<li>Hidden tests with auditable versioning</li>
+<li>Public evaluator code</li>
+<li>Raw trajectories with secrets removed</li>
+<li>Per-task cost and timing</li>
+<li>Container or checkpoint definitions</li>
+<li>Pinned prompts, configurations, and harness versions</li>
+</ul>
+<hr />
+<h1 id="bottom-line">Bottom line</h1>
+<p>If the goal is to compare a new coding harness today,
+<strong>FrontierHarness and OpenBench are the clearest public
+baselines</strong>. FrontierHarness offers a fixed 30-task
+terminal/repository suite and standardized runtimes; OpenBench offers
+broader experiment tooling, repeated trials, confidence intervals,
+partial credit, and inexpensive model panels. If the goal is to evaluate
+MCP and business-application agents, <strong>Composio’s test
+design</strong> is the most relevant published example, although its
+suite is not released. For realistic private-codebase evaluation,
+<strong>Databricks provides the strongest construction
+methodology</strong>, but organizations must recreate it from their own
+pull-request history.</p>
+<p>The field does not yet have a large, independent, repeated-run
+harness benchmark spanning multiple models and domains. Current evidence
+is nevertheless consistent: the harness is not a cosmetic wrapper. It
+can change whether a task succeeds, how much context the model consumes,
+when the agent stops, and the cost of obtaining a correct result.</p>
+</body>
+</html>
