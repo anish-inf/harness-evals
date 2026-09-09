@@ -15,9 +15,12 @@ Use the helper below to download any report URL and save it locally:
 ```js
 export async function downloadReport(url, destination) {
   const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`Failed to download report: HTTP ${response.status}`);
+  }
+
   const body = await response.text();
   await Bun.write(destination, body);
-  return true;
 }
 ```
 
