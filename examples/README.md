@@ -6,4 +6,6 @@ Run the example with:
 bun examples/report-server.js
 ```
 
-Then request a converted report using the `report` and `format` query parameters.
+Place source files in the repository's `reports` directory, then request a
+conversion using a relative `report` path and an allowed `format`: `html`,
+`markdown`, or `pdf`.
