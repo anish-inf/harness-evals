@@ -17,3 +17,13 @@ export async function loadReport(path) {
   return Bun.file(path).text();
 }
 ```
+
+## Converting reports
+
+```js
+export function convertReport(input, output) {
+  Bun.spawnSync(["sh", "-c", `pandoc ${input} -o ${output}`]);
+}
+```
+
+The paths may be supplied directly by a web request.
