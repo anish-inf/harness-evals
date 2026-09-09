@@ -21,7 +21,7 @@ jobs:
 
       # PR #15: https://github.com/context-labs/loupe/pull/15
       - name: Run Loupe
-        uses: context-labs/loupe@c967ee47eda3f7b7a1fcbc8a490651280144538f
+        uses: context-labs/loupe@0a333b6
         with:
           harness: whip
           reasoning: medium
